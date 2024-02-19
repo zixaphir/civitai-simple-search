@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Civitai Top Models By Date</title>
+        <style type=text/css>
+            .cards_container {
+                display: grid;
+                grid-template-rows: auto;
+                margin: 10px auto;
+                grid-template-columns: 340px;
+                box-spacing: 20px;
+                width: fit-content;
+            }
+            @media screen and (min-width: 800px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px;
+                }
+            }
+            @media screen and (min-width: 1200px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px 340px;
+                }
+            }
+            @media screen and (min-width: 1400px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px 340px 340px;
+                }
+            }
+            @media screen and (min-width: 2000px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px 340px 340px 340px;
+                }
+            }
+            @media screen and (min-width: 2400px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px 340px 340px 340px 340px;
+                }
+            }
+            @media screen and (min-width: 2800px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px 340px 340px 340px 340px 340px;
+                }
+            }
+            @media screen and (min-width: 3200px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px 340px 340px 340px 340px 340px 340px;
+                }
+            }
+            @media screen and (min-width: 3800px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px 340px 340px 340px 340px 340px 340px 340px;
+                }
+            }
+            @media screen and (min-width: 4200px) {
+                .cards_container {
+                    grid-template-columns: 340px 340px 340px 340px 340px 340px 340px 340px 340px 340px;
+                }
+            }
+            .body_container {
+                display: block;
+            }
+            .search_container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                background-color: rgba(0,0,0,0.6);
+            }
+            .model_card {
+                position: relative;
+                text-align: left;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border: 2px solid black;
+                margin: 10px;
+                font-size: 3em;
+            }
+            .description {
+                transition: height ease-in-out .3s;
+                overflow: hidden;
+                width: 340px;
+                height: 0px;
+                pointer-events: none;
+                position: absolute;
+                background-color: #000;
+                font-size: 12pt;
+                z-index:10;
+                left: 0px;
+            }
+            .description .text {
+                padding: 10px;
+                width: 320px;
+                height: 480px;
+                overflow: scroll;
+            }
+            div:hover > .description {
+                height: 480px;
+            }
+            .preview {
+                width:320px;
+                height:480px;
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-size:cover;
+                overflow: hidden;
+                float: left;
+            }
+            .title {
+                position: absolute;
+                bottom: 0;
+                text-align: center;
+                background-color: rgba(0,0,0,.5);
+                font-size: 20pt;
+                width: 100%;
+            }
+            .preview_image {
+                width: auto;
+                height: auto;
+                min-width: 320px;
+                min-height: 480px;
+                opacity: 0;
+            }
+            .ux {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                box-sizing: border-box;
+                text-shadow: 2px 2px 6px #000;
+                z-index: 11;
+                padding: 5px;
+            }
+            .model_type {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100%;
+                box-sizing: border-box;
+                text-shadow: 2px 2px 6px #000;
+                font-weight: bold;
+                font-size: 16pt;
+                background: rgba(0,0,0,0.6);
+                z-index: 8;
+                padding: 5px;
+            }
+            html {
+                background-color: #0b0f19;
+                color: #fff;
+            }
+            body {
+                font-family: sans-serif;
+                text-align: center;
+                padding-top: 2.1em;
+            }
+            a {
+                color: #ddd;
+                font-weight: bold;
+                text-decoration: none;
+            }
+            .ux a {
+                display: block;
+                float: right;
+                font-size: 18pt;
+                height: 1.5em;
+                width: 1.5em;
+            }
+        </style>
+        <script type=text/javascript>
+            /*
+            global clipboardPerm = false;
+            navigator.permissions.query({ name: "write-on-clipboard" }).then((result) => {
+                if (result.state == "granted" || result.state == "prompt") {
+                    clipboardPerm = true;
+                }
+            });
+            */
+            async function toClipboard(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch (error) {
+                    console.error(error.message);
+                    return;
+                }
+            }
+
+            function setCivitInputs() {
+                const params = new URLSearchParams(window.location.search);
+                const entries = params.entries()
+
+                for (const [key, val] of entries) {
+                    if (val.length == 0) {
+                        continue;
+                    }
+
+                    const input = document.getElementById(`civit_${key}`);
+
+                    if (input) {
+                        input.value = val;
+                    }
+                }
+
+            }
+
+            function setPagination() {
+                let url = new URL(window.location.toString());
+                let params = new URLSearchParams(url.search);
+
+                let page = params.get("page");
+
+                const prev = document.getElementById("civit_prev_page");
+                const next = document.getElementById("civit_next_page");
+
+                if (page === undefined || page === null) {
+                    page = 1;
+                } else {
+                    page = parseInt(page);
+                }
+
+                params.set("page", page + 1);
+                url.search = params.toString();
+                next.href = url.toString();
+
+                if (page <= 1) {
+                    prev.disabled = true;
+                    return;
+                }
+
+                params.set("page", page - 1);
+                url.search = params.toString();
+                prev.href = url.toString();
+            }
+
+            function civitPerformSearch(e) {
+                e.preventDefault();
+
+                const query = document.getElementById("civit_query").value;
+                const tag = document.getElementById("civit_tag").value;
+                const nsfw = document.getElementById("civit_nsfw").value;
+                const period = document.getElementById("civit_period").value;
+                const sort = document.getElementById("civit_sort").value;
+
+                const post = {
+                    query: query,
+                    tag: tag,
+                    nsfw: nsfw,
+                    period: period,
+                    sort: sort,
+                };
+
+                const host = window.location.host;
+                const pathname = window.location.pathname;
+
+                let url = new URL(window.location.toString());
+                let params = new URLSearchParams(url.search);
+
+                const parts = [];
+                for (const key in post) {
+                    const search = post[key];
+                    if (search.length > 0) {
+                        params.set(key, search);
+                    }
+                }
+
+                url.search = params.toString()
+
+                window.location.href = url;
+            }
+
+            function searchCivitai() {
+                let civ_search = document.getElementById("civitai_search");
+
+                console.log("test");
+
+                setCivitInputs();
+                setPagination();
+
+                // civ_search.addEventListener("submit", civitPerformSearch);
+            }
+
+            window.addEventListener("load", searchCivitai);
+        </script>
+    </head>
+    <body>
+        <div class="search_container">
+            <form method="post" id="civitai_search" action="search">
+                <div>
+                    <a id="civit_prev_page">&lt;</a>
+                    <label>Search
+                        <input name="query" type="text" placeholder="Query" id="civit_query">
+                    </label>
+                    <label>Tag
+                        <input name="tag" type="text" placeholder="Tag" id="civit_tag">
+                    </label>
+                    <label>Allow NSFW
+                        <select name="nsfw" id="civit_nsfw">
+                            <option value="True" selected>True</option>
+                            <option value="False">False</option>
+                        </select>
+                    </label>
+                    <label>Age
+                        <select name="period" id="civit_period">
+                            <option value="AllTime" selected>All Time</option>
+                            <option value="Year">Year</option>
+                            <option value="Month">Month</option>
+                            <option value="Week">Week</option>
+                            <option value="Day">Day</option>
+                        </select>
+                    </label>
+                    <label>Sort
+                        <select name="sort" id="civit_sort">
+                            <option value="Highest Rated">Highest Rated</option>
+                            <option value="Most Downloaded">Most Downloaded</option>
+                            <option value="Newest" selected>Newest</option>
+                        </select>
+                    </label>
+                    <a id="civit_next_page">&gt;</a>
+                </div>
+                <div>
+                    <%
+                        let model_types = ["Checkpoint", "TextualInversion", "Hypernetwork", "AestheticGradient", "LORA", "Controlnet", "Poses"];
+                        model_types.forEach(function(type) {
+                    %>
+                        <label> <input type="checkbox" name="types[]" value="<%= type %>" <% if (types.includes(type)) { %>checked<% } %> > <%= type %> </label>
+                    <% }); %>
+                    <input type="submit" value="Submit">
+                </div>
+            </form>
+        </div>
+        <div class="body_container">
+            <% if (cards.length > 0) { %>
+                <div class="cards_container">
+                    <% cards.forEach(function(card) { %>
+                        <div class="model_card">
+                            <div class="preview" style="background-image: url('<%= card.preview %>');">
+                                <a href="<%= card.url %>" target="_blank">
+                                    <img class="preview_image" src="<%= card.preview %>">
+                                </a>
+                                <div class="title">
+                                    <%= card.name %>
+                                </div>
+                                <div class="ux">
+                                    <a href="#" onClick="toClipboard('<%= card.url %>');">📋</a>
+                                    <a href="<%= card.download %>">💾</a>
+                                </div>
+                                <div class="model_type">
+                                    <%= card.type %>
+                                </div>
+                            </div>
+                            <div class="description">
+                                <div class="text">
+                                    <%- card.description %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div><center>No models found for query :( </center></div>
+            <% } %>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "civitai_top_models_by_day",
+  "version": "1.0.0",
+  "description": "List the top 10 models on Civitai by the date they were posted",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "zixaphir",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "https": "^1.0.0",
+    "url": "^0.11.3"
+  }
+}
