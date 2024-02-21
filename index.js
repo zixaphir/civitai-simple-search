@@ -173,7 +173,7 @@ app.get('/', function (req, res) {
     fetchData(page).then(models => {
         res.render("index", {
             cards: models,
-            types: types,
+            types: args.types,
         });
     });
 });
