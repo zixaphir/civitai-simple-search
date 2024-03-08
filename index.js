@@ -152,6 +152,10 @@ function parseURL(req) {
             filter = params.get(query);
             continue;
         }
+        if (query == "types") {
+            args[query] = params.get(query).split(",");
+            continue;
+        }
         args[query] = params.get(query);
     }
     return args;
@@ -181,30 +185,12 @@ app.get('/', function (req, res) {
 app.get('/search', function (req, res) {
     const args = parseURL(req)
 
-    let types = args["types"]
+    let types = args.types;
 
     let page = make_url(args);
 
-    fetchData(page).then(models => {
-        res.render("index", {
-            cards: models,
-            types: types,
-        });
-    });
-});
-
-app.post('/search', function (req, res) {
-    const args = parseURL(req);
-
-    for (let param in req.body) {
-        args[param] = req.body[param];
-    }
-
+    console.log(types);
     console.log(args);
-
-    let types = args["types"]
-
-    let page = make_url(args);
 
     fetchData(page).then(models => {
         res.render("index", {

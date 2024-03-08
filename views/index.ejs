@@ -236,49 +236,32 @@
 
             function civitPerformSearch(e) {
                 e.preventDefault();
+                e.stopPropagation()
 
-                const query = document.getElementById("civit_query").value;
-                const tag = document.getElementById("civit_tag").value;
-                const nsfw = document.getElementById("civit_nsfw").value;
-                const period = document.getElementById("civit_period").value;
-                const sort = document.getElementById("civit_sort").value;
+                const form = document.getElementById("civitai_search");
 
-                const post = {
-                    query: query,
-                    tag: tag,
-                    nsfw: nsfw,
-                    period: period,
-                    sort: sort,
-                };
+                const model_type_inputs = document.querySelectorAll("#civit_types label input");
+                const model_types_input = document.getElementById("civit_types_input");
 
-                const host = window.location.host;
-                const pathname = window.location.pathname;
-
-                let url = new URL(window.location.toString());
-                let params = new URLSearchParams(url.search);
-
-                const parts = [];
-                for (const key in post) {
-                    const search = post[key];
-                    if (search.length > 0) {
-                        params.set(key, search);
+                model_types = [];
+                for (const model_type_input of model_type_inputs) {
+                    if (model_type_input.checked) {
+                        model_types.push(model_type_input.value);
                     }
                 }
 
-                url.search = params.toString()
+                model_types_input.value = model_types.join(",");
 
-                window.location.href = url;
+                form.submit();
             }
 
             function searchCivitai() {
-                let civ_search = document.getElementById("civitai_search");
-
-                console.log("test");
+                const submit = document.getElementById("search_submit");
 
                 setCivitInputs();
                 setPagination();
 
-                // civ_search.addEventListener("submit", civitPerformSearch);
+                submit.addEventListener("click", civitPerformSearch);
             }
 
             window.addEventListener("load", searchCivitai);
@@ -286,7 +269,7 @@
     </head>
     <body>
         <div class="search_container">
-            <form method="post" id="civitai_search" action="search">
+            <form method="get" id="civitai_search" action="search">
                 <div>
                     <a id="civit_prev_page">&lt;</a>
                     <label>Search
@@ -319,15 +302,16 @@
                     </label>
                     <a id="civit_next_page">&gt;</a>
                 </div>
-                <div>
+                <div id="civit_types">
                     <%
                         let model_types = ["Checkpoint", "TextualInversion", "Hypernetwork", "AestheticGradient", "LORA", "Controlnet", "Poses"];
                         model_types.forEach(function(type) {
                     %>
-                        <label> <input type="checkbox" name="types[]" value="<%= type %>" <% if (types.includes(type)) { %>checked<% } %> > <%= type %> </label>
+                        <label> <input type="checkbox" value="<%= type %>" <% if (types.includes(type)) { %>checked<% } %> > <%= type %> </label>
                     <% }); %>
-                    <input type="submit" value="Submit">
+                    <input type="submit" value="Submit" id="search_submit">
                 </div>
+                <input type='hidden' name='types' id='civit_types_input'>
             </form>
         </div>
         <div class="body_container">
