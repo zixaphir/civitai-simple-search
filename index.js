@@ -16,13 +16,19 @@ function make_url(args) {
     let url = base_url;
     console.log(args);
     for (let arg in args) {
+        if (args[arg] == "") {
+            continue;
+        }
         if (arg == "types") {
             for (let type of args[arg]) {
-                url += `&${arg}=${type}`;
+                url += `${arg}=${type}&`;
             }
             continue;
         }
-        url += `&${arg}=${args[arg]}`;
+        url += `${arg}=${args[arg]}&`;
+    }
+    if (url.slice(-1) == "&") {
+        url = url.slice(0, -1);
     }
     return url;
 
@@ -83,7 +89,7 @@ async function fetchData(url) {
                     try {
                         files = model.modelVersions[0].files;
                     } catch(err) {
-                        continue;
+                        console.log(`Failed to access model files for ${name}.`);
                     }
 
                     try {
@@ -94,19 +100,25 @@ async function fetchData(url) {
                             }
                         }
                     } catch(err) {
-
+                        console.log(`Could not find model preview for ${name}.`);
                     }
 
                     if (preview === null) {
                         preview = "noprev.png";
                     }
 
-                    for (let file of files) {
-                        if (file.type != "Model") {
-                            continue;
+                    if (files) {
+                        for (let file of files) {
+                            if (file.type != "Model") {
+                                continue;
+                            }
+                            download = `https://civitai.com/api/download/models/${file.id}`;
+                            break;
                         }
-                        download = `https://civitai.com/api/download/models/${file.id}`;
-                        break;
+                    }
+
+                    if (download === null) {
+                        download = "";
                     }
 
                     models.push({
@@ -188,9 +200,6 @@ app.get('/search', function (req, res) {
     let types = args.types;
 
     let page = make_url(args);
-
-    console.log(types);
-    console.log(args);
 
     fetchData(page).then(models => {
         res.render("index", {
