@@ -14,22 +14,20 @@ const model_base_url = "https://civitai.com/models/"
 
 function make_url(args) {
     let url = base_url;
-    console.log(args);
+    let frags = []
     for (let arg in args) {
         if (args[arg] == "") {
             continue;
         }
         if (arg == "types") {
             for (let type of args[arg]) {
-                url += `${arg}=${type}&`;
+                frags.push(`${arg}=${type}`);
             }
             continue;
         }
-        url += `${arg}=${args[arg]}&`;
+        frags.push(`${arg}=${args[arg]}`);
     }
-    if (url.slice(-1) == "&") {
-        url = url.slice(0, -1);
-    }
+    url += frags.join("&");
     return url;
 
 }
