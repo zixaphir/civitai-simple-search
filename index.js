@@ -34,7 +34,7 @@ function make_url(args) {
 
 async function fetchData(url) {
     let jsondata = "";
-    let promise = new Promise((resolve) => {
+    let models = new Promise((resolve) => {
         https.get(url, res => {
             let data = "";
 
@@ -91,7 +91,7 @@ async function fetchData(url) {
                     }
 
                     try {
-                        let previews = model.modelVersions[0].images
+                        let previews = model.modelVersions[0].images;
                         for (const file of previews) {
                             if (file.type == "image") {
                                 preview = file.url;
@@ -137,7 +137,6 @@ async function fetchData(url) {
             });
         });
     });
-    models = await promise;
     return models;
 }
 
