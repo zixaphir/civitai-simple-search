@@ -304,7 +304,7 @@
                 </div>
                 <div id="civit_types">
                     <%
-                        let model_types = ["Checkpoint", "TextualInversion", "Hypernetwork", "AestheticGradient", "LORA", "Controlnet", "Poses"];
+                        let model_types = ["Checkpoint", "TextualInversion", "Hypernetwork", "AestheticGradient", "LORA", "LoCon", "Controlnet", "Poses"];
                         model_types.forEach(function(type) {
                     %>
                         <label> <input type="checkbox" value="<%= type %>" <% if (types.includes(type)) { %>checked<% } %> > <%= type %> </label>
