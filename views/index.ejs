@@ -154,7 +154,7 @@
             body {
                 font-family: sans-serif;
                 text-align: center;
-                padding-top: 2.1em;
+                padding-top: 3.1em;
             }
             a {
                 color: #ddd;
@@ -234,23 +234,28 @@
                 prev.href = url.toString();
             }
 
+            function populateInputs(baseName) {
+                const source_inputs = document.querySelectorAll(`#civit_${baseName} label input`);
+                const dest_input = document.getElementById(`civit_${baseName}_input`);
+
+                vals = [];
+                for (const input of source_inputs) {
+                    if (input.checked) {
+                        vals.push(input.value);
+                    }
+                }
+
+                dest_input.value = vals.join(",");
+            }
+
             function civitPerformSearch(e) {
                 e.preventDefault();
                 e.stopPropagation()
 
+                populateInputs("types");
+                populateInputs("baseModels");
+
                 const form = document.getElementById("civitai_search");
-
-                const model_type_inputs = document.querySelectorAll("#civit_types label input");
-                const model_types_input = document.getElementById("civit_types_input");
-
-                model_types = [];
-                for (const model_type_input of model_type_inputs) {
-                    if (model_type_input.checked) {
-                        model_types.push(model_type_input.value);
-                    }
-                }
-
-                model_types_input.value = model_types.join(",");
 
                 form.submit();
             }
@@ -300,9 +305,9 @@
                             <option value="Newest" selected>Newest</option>
                         </select>
                     </label>
-                    <a id="civit_next_page">&gt;</a>
                 </div>
                 <div id="civit_types">
+                    Model Type:
                     <%
                         let model_types = ["Checkpoint", "TextualInversion", "Hypernetwork", "AestheticGradient", "LORA", "LoCon", "Controlnet", "Poses"];
                         model_types.forEach(function(type) {
@@ -311,6 +316,17 @@
                     <% }); %>
                     <input type="submit" value="Submit" id="search_submit">
                 </div>
+                <div id="civit_baseModels">
+                    Base Model:
+                    <%
+                        let baseModel_types = ["Other", "Pix Art a", "Playground v2", "Pony", "SD 1.4", "SD 1.5", "SD 1.5 LCM", "SD 2.0", "SD 2.0 768", "SD 2.1", "SD 2.1 768", "SD 2.1 Unclip", "SDXL 0.9", "SDXL 1.0", "SDXL 1.0 LCM", "SDXL Distilled", "SDXL Lightning", "SDXL Turbo", "SVD", "SVD XT"];
+                        baseModel_types.forEach(function(baseType) {
+                    %>
+                        <label> <input type="checkbox" value="<%= baseType %>" <% if (baseModels.includes(baseType)) { %>checked<% } %> > <%= baseType %> </label>
+                    <% }); %>
+                    <a id="civit_next_page">&gt;</a>
+                </div>
+                <input type='hidden' name='baseModels' id='civit_baseModels_input'>
                 <input type='hidden' name='types' id='civit_types_input'>
             </form>
         </div>

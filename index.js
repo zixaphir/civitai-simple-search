@@ -11,6 +11,15 @@ app.use(express.static('imgs'));
 const base_url = "https://civitai.com/api/v1/models?";
 const model_base_url = "https://civitai.com/models/"
 
+function arrayFrag(name, vals, store) {
+    if (vals.length == 0) {
+        return store;
+    };
+    for (let val of vals) {
+        store.push(`${name}=${val}`);
+    }
+    return store;
+}
 
 function make_url(args) {
     let url = base_url;
@@ -19,10 +28,8 @@ function make_url(args) {
         if (args[arg] == "") {
             continue;
         }
-        if (arg == "types") {
-            for (let type of args[arg]) {
-                frags.push(`${arg}=${type}`);
-            }
+        if (["types", "baseModels"].includes(arg)) {
+            frags = arrayFrag(arg, args[arg], frags);
             continue;
         }
         frags.push(`${arg}=${args[arg]}`);
@@ -148,7 +155,7 @@ function parseURL(req) {
         nsfw: true,
     }
 
-    let filter = null;
+    // let filter = null;
 
     let currenturl = req.protocol + '://' + req.get('host') + req.originalUrl;
 
@@ -157,11 +164,13 @@ function parseURL(req) {
     let keys = incoming.searchParams.keys();
     let params = incoming.searchParams;
     for (let query of keys) {
+        /*
         if (query == "filter") {
             filter = params.get(query);
             continue;
         }
-        if (query == "types") {
+        */
+        if (["types", "baseModels"].includes(query)) {
             args[query] = params.get(query).split(",");
             continue;
         }
@@ -177,6 +186,7 @@ app.get('/', function (req, res) {
         limit: 10,
         period: "Day",
         types: ["LORA"],
+        baseModels: [],
         sort: "Most Downloaded",
         nsfw: true,
     }
@@ -187,6 +197,7 @@ app.get('/', function (req, res) {
         res.render("index", {
             cards: models,
             types: args.types,
+            baseModels: args.baseModels,
         });
     });
 });
@@ -194,7 +205,18 @@ app.get('/', function (req, res) {
 app.get('/search', function (req, res) {
     const args = parseURL(req)
 
+    console.log(args)
+
     let types = args.types;
+    let baseModels = args.baseModels;
+
+    if (!types) {
+        types = ["Lora"]
+    }
+
+    if (!baseModels) {
+        baseModels = [];
+    }
 
     let page = make_url(args);
 
@@ -202,6 +224,7 @@ app.get('/search', function (req, res) {
         res.render("index", {
             cards: models,
             types: types,
+            baseModels: baseModels,
         });
     });
 });
