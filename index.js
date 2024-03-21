@@ -39,7 +39,7 @@ function make_url(args) {
 
 }
 
-async function fetchData(url) {
+async function fetchData(url, nsfw) {
     let jsondata = "";
     let models = new Promise((resolve) => {
         https.get(url, res => {
@@ -101,6 +101,9 @@ async function fetchData(url) {
                         let previews = model.modelVersions[0].images;
                         for (const file of previews) {
                             if (file.type == "image") {
+                                if (!nsfw && (file.nsfw === true || file.nsfw == "X")) {
+                                    continue;
+                                }
                                 preview = file.url;
                             }
                         }
@@ -152,7 +155,7 @@ function parseURL(req) {
         limit: 100,
         types: ["LORA"],
         sort: "Newest",
-        nsfw: true,
+        nsfw: "false",
     }
 
     // let filter = null;
@@ -188,15 +191,16 @@ app.get('/', function (req, res) {
         types: ["LORA"],
         baseModels: [],
         sort: "Most Downloaded",
-        nsfw: true,
+        nsfw: "false",
     }
 
     let page = make_url(args)
 
-    fetchData(page).then(models => {
+    fetchData(page, false).then(models => {
         res.render("index", {
             cards: models,
             types: args.types,
+            nsfw: "false",
             baseModels: args.baseModels,
         });
     });
@@ -220,10 +224,11 @@ app.get('/search', function (req, res) {
 
     let page = make_url(args);
 
-    fetchData(page).then(models => {
+    fetchData(page, args.nsfw == "true" ? true : false).then(models => {
         res.render("index", {
             cards: models,
             types: types,
+            nsfw: args.nsfw,
             baseModels: baseModels,
         });
     });

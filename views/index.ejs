@@ -283,10 +283,10 @@
                     <label>Tag
                         <input name="tag" type="text" placeholder="Tag" id="civit_tag">
                     </label>
-                    <label>Allow NSFW
+                    <label>NSFW
                         <select name="nsfw" id="civit_nsfw">
-                            <option value="True" selected>True</option>
-                            <option value="False">False</option>
+                            <option value="true" <% if (nsfw == "true") { %>selected<% } %>>Allow</option>
+                            <option value="false" <% if (nsfw != "true") { %>selected<% } %>>Deny</option>
                         </select>
                     </label>
                     <label>Age
@@ -305,6 +305,8 @@
                             <option value="Newest" selected>Newest</option>
                         </select>
                     </label>
+                    <input type="submit" value="Search" id="search_submit">
+                    <a id="civit_next_page">&gt;</a>
                 </div>
                 <div id="civit_types">
                     Model Type:
@@ -314,7 +316,6 @@
                     %>
                         <label> <input type="checkbox" value="<%= type %>" <% if (types.includes(type)) { %>checked<% } %> > <%= type %> </label>
                     <% }); %>
-                    <input type="submit" value="Submit" id="search_submit">
                 </div>
                 <div id="civit_baseModels">
                     Base Model:
@@ -324,7 +325,6 @@
                     %>
                         <label> <input type="checkbox" value="<%= baseType %>" <% if (baseModels.includes(baseType)) { %>checked<% } %> > <%= baseType %> </label>
                     <% }); %>
-                    <a id="civit_next_page">&gt;</a>
                 </div>
                 <input type='hidden' name='baseModels' id='civit_baseModels_input'>
                 <input type='hidden' name='types' id='civit_types_input'>
