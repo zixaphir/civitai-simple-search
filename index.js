@@ -5,6 +5,9 @@ const ejs = require('ejs');
 const app = express();
 const port = 39230;
 
+const allow_video = true;
+const video_autoplay = true;
+
 app.use(express.urlencoded({extended: true}))
 app.use(express.static('imgs'));
 
@@ -51,6 +54,11 @@ async function fetchData(url, nsfw) {
             console.log('Status Code:', res.statusCode);
             console.log('Date in Response header:', headerDate);
 
+            const preview_types = ["image"];
+            if (allow_video) {
+                preview_types.push("video");
+            }
+
             res.on('data', chunk => {
                 data += chunk;
             });
@@ -86,13 +94,15 @@ async function fetchData(url, nsfw) {
                     const url = `${model_base_url}${model.id}`;
                     const type = model.type;
                     const baseModels = [];
+                    const preview = {
+                        type: null,
+                        url: null,
+                    };
 
-                    let preview = null;
                     let download = "";
                     let files = null;
 
                     let modelVersions = model.modelVersions;
-
                     files = modelVersions[0]?.files;
 
                     try {
@@ -109,19 +119,23 @@ async function fetchData(url, nsfw) {
                             }
                         }
                         for (const file of previews) {
-                            if (file.type == "image") {
-                                if (!nsfw && (file.nsfw === true || file.nsfw == "X")) {
-                                    continue;
-                                }
-                                preview = file.url;
+                            if (!nsfw && file.nsfw == "X") {
+                                continue;
                             }
+                            if (!preview_types.includes(file.type)) {
+                                continue;
+                            }
+
+                            preview.url = file.url;
+                            preview.type = file.type;
                         }
                     } catch(err) {
                         console.log(`Could not find model preview for ${name}.`);
                     }
 
-                    if (preview === null) {
-                        preview = "noprev.png";
+                    if (!preview.type) {
+                        preview.url = "noprev.png";
+                        preview.type = "image";
                     }
 
                     if (files) {
@@ -141,7 +155,10 @@ async function fetchData(url, nsfw) {
                     names.push(name);
                     models.push({
                         name: name,
-                        preview: preview,
+                        preview: {
+                            type: preview.type,
+                            url: preview.url,
+                        },
                         url: url,
                         description: description,
                         type: type,
@@ -213,14 +230,13 @@ app.get('/', function (req, res) {
             types: args.types,
             nsfw: "false",
             baseModels: args.baseModels,
+            autoplay: allow_video && video_autoplay,
         });
     });
 });
 
 app.get('/search', function (req, res) {
     const args = parseURL(req)
-
-    console.log(args)
 
     let types = args.types;
     let baseModels = args.baseModels;
@@ -235,12 +251,13 @@ app.get('/search', function (req, res) {
 
     let page = make_url(args);
 
-    fetchData(page, args.nsfw == "true" ? true : false).then(models => {
+    fetchData(page, (args.nsfw == "true" ? true : false)).then(models => {
         res.render("index", {
             cards: models,
             types: types,
             nsfw: args.nsfw,
             baseModels: baseModels,
+            autoplay: allow_video && video_autoplay,
         });
     });
 });

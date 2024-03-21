@@ -105,12 +105,23 @@
             .preview {
                 width:320px;
                 height:480px;
-                background-position: center center;
-                background-repeat: no-repeat;
-                background-size:cover;
                 overflow: hidden;
                 float: left;
             }
+            .preview_container {
+                width:320px;
+                height:480px;
+                position: relative;
+            }
+            .preview_container img,
+            .preview_container video {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center center;
+            }
+
             .title {
                 position: absolute;
                 bottom: 0;
@@ -118,6 +129,8 @@
                 background-color: rgba(0,0,0,.5);
                 font-size: 20pt;
                 width: 100%;
+                z-index: 1;
+                position: relative;
             }
             .preview_image {
                 width: auto;
@@ -138,6 +151,7 @@
             }
             .model_meta {
                 position: absolute;
+                z-index: 1;
                 top: 0;
                 right: 0;
                 width: 100%;
@@ -427,9 +441,17 @@
                 <div class="cards_container">
                     <% cards.forEach(function(card) { %>
                         <div class="model_card">
-                            <div class="preview" style="background-image: url('<%= card.preview %>');">
+                            <div class="preview"">
                                 <a href="<%= card.url %>" target="_blank">
-                                    <img class="preview_image" src="<%= card.preview %>">
+                                    <div class="preview_container">
+                                        <% if (card.preview.type == "image") { %>
+                                            <img class="model_preview" src="<%= card.preview.url %>">
+                                        <% } else { %>
+                                            <video class="model_preview" <%= autoplay ? "autoplay" : "" %> muted loop>
+                                                <source src="<%= card.preview.url %>">
+                                            </video>
+                                        <% } %>
+                                    </div>
                                 </a>
                                 <div class="title">
                                     <%= card.name %>
