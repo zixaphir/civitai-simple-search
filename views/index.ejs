@@ -368,7 +368,21 @@
                 <div id="civit_types">
                     Model Type:
                     <%
-                        let model_types = ["Checkpoint", "TextualInversion", "Hypernetwork", "AestheticGradient", "LORA", "LoCon", "Controlnet", "Poses"];
+                        let model_types = [
+                            "Checkpoint",
+                            "TextualInversion",
+                            "Hypernetwork",
+                            "AestheticGradient",
+                            "LORA",
+                            "LoCon",
+                            "Controlnet",
+                            "Poses",
+                            "Workflows",
+                            "MotionModule",
+                            "Upscaler",
+                            "Wildcards",
+                            "VAE"
+                        ];
                         model_types.forEach(function(type) {
                     %>
                         <label class="checkbox"> <input type="checkbox" value="<%= type %>" <% if (types.includes(type)) { %>checked<% } %> > <span class=button> <%= type %> </span> </label>
@@ -377,7 +391,28 @@
                 <div id="civit_baseModels">
                     Base Model:
                     <%
-                        let baseModel_types = ["Other", "Pix Art a", "Playground v2", "Pony", "SD 1.4", "SD 1.5", "SD 1.5 LCM", "SD 2.0", "SD 2.0 768", "SD 2.1", "SD 2.1 768", "SD 2.1 Unclip", "SDXL 0.9", "SDXL 1.0", "SDXL 1.0 LCM", "SDXL Distilled", "SDXL Lightning", "SDXL Turbo", "SVD", "SVD XT"];
+                        let baseModel_types = [
+                            "Other",
+                            "Pix Art a",
+                            "Playground v2",
+                            "Pony",
+                            "SD 1.4",
+                            "SD 1.5",
+                            "SD 1.5 LCM",
+                            "SD 2.0",
+                            "SD 2.0 768",
+                            "SD 2.1",
+                            "SD 2.1 768",
+                            "SD 2.1 Unclip",
+                            "SDXL 0.9",
+                            "SDXL 1.0",
+                            "SDXL 1.0 LCM",
+                            "SDXL Distilled",
+                            "SDXL Lightning",
+                            "SDXL Turbo",
+                            "SVD",
+                            "SVD XT"
+                        ];
                         baseModel_types.forEach(function(baseType) {
                     %>
                         <label class="checkbox"> <input type="checkbox" value="<%= baseType %>" <% if (baseModels.includes(baseType)) { %>checked<% } %> > <span class=button> <%= baseType %> </span> </label>
