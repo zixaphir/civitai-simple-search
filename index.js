@@ -56,16 +56,16 @@ async function fetchData(url, nsfw) {
             });
 
             res.on('end', () => {
-                let models = []
+                const models = []
                 console.log('Response ended: ');
-                let items = JSON.parse(data).items || [];
+                const items = JSON.parse(data).items || [];
 
                 if (items.length == 0) {
                     console.log("No models found for query. :(");
                     resolve([]);
                 }
 
-                let names = [];
+                const names = [];
                 for(let model of items) {
                     /*
                     if (filter) {
@@ -81,24 +81,33 @@ async function fetchData(url, nsfw) {
                     }
                     */
 
-                    let name = model.name;
-                    let description = model.description;
-                    let url = `${model_base_url}${model.id}`;
+                    const name = model.name;
+                    const description = model.description;
+                    const url = `${model_base_url}${model.id}`;
+                    const type = model.type;
+                    const baseModels = [];
+
                     let preview = null;
                     let download = "";
                     let files = null;
-                    let type = model.type;
 
-                    names.push(name);
+                    let modelVersions = model.modelVersions;
 
-                    try {
-                        files = model.modelVersions[0].files;
-                    } catch(err) {
-                        console.log(`Failed to access model files for ${name}.`);
-                    }
+                    files = modelVersions[0]?.files;
 
                     try {
-                        let previews = model.modelVersions[0].images;
+                        const previews = [];
+                        for (const version of modelVersions) {
+                            console.log(version);
+                            const images = version?.images;
+                            if (images?.length > 0) {
+                                previews.push(...images);
+                            }
+                            const baseModel = version?.baseModel;
+                            if (baseModel && !baseModels.includes(baseModel)) {
+                                baseModels.push(baseModel);
+                            }
+                        }
                         for (const file of previews) {
                             if (file.type == "image") {
                                 if (!nsfw && (file.nsfw === true || file.nsfw == "X")) {
@@ -116,7 +125,7 @@ async function fetchData(url, nsfw) {
                     }
 
                     if (files) {
-                        for (let file of files) {
+                        for (const file of files) {
                             if (file.type != "Model") {
                                 continue;
                             }
@@ -129,13 +138,15 @@ async function fetchData(url, nsfw) {
                         download = "";
                     }
 
+                    names.push(name);
                     models.push({
                         name: name,
                         preview: preview,
                         url: url,
                         description: description,
                         type: type,
-                        download: download
+                        download: download,
+                        baseModels: baseModels,
                     });
                 }
                 console.log(`Found the following models: ["${names.join("\", \"")}"].`);

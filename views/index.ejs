@@ -136,7 +136,7 @@
                 z-index: 11;
                 padding: 5px;
             }
-            .model_type {
+            .model_meta {
                 position: absolute;
                 top: 0;
                 right: 0;
@@ -148,6 +148,13 @@
                 background: rgba(0,0,0,0.6);
                 z-index: 8;
                 padding: 5px;
+                vertical-align: top;
+            }
+            .model_base {
+                font-family: monospace;
+                font-size: 50%;
+                vertical-align: super;
+                line-height: normal;
             }
             html {
                 background-color: #0b0f19;
@@ -396,8 +403,13 @@
                                     <a href="#" onClick="toClipboard('<%= card.url %>');">📋</a>
                                     <a href="<%= card.download %>">💾</a>
                                 </div>
-                                <div class="model_type">
-                                    <%= card.type %>
+                                <div class="model_meta">
+                                    <span>
+                                        <%= card.type %>
+                                    </span>
+                                    <span class="model_base">
+                                        <%= card.baseModels[0] %>
+                                    </span>
                                 </div>
                             </div>
                             <div class="description">
