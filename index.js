@@ -1,6 +1,7 @@
 const express = require('express');
 const https = require('https');
 const ejs = require('ejs');
+const path = require('node:path');
 
 const app = express();
 const port = 39230;
@@ -9,7 +10,8 @@ const allow_video = true;
 const video_autoplay = true;
 
 app.use(express.urlencoded({extended: true}))
-app.use(express.static('assets'));
+app.use(express.static(path.join(__dirname, 'assets')));
+app.set('views', path.join(__dirname, 'views'));
 
 const base_url = "https://civitai.com/api/v1/models?";
 const model_base_url = "https://civitai.com/models/"
@@ -145,7 +147,7 @@ async function fetchData(url, nsfw) {
                     }
 
                     if (!preview.type) {
-                        preview.url = "noprev.png";
+                        preview.url = "imgs/noprev.png";
                         preview.type = "image";
                     }
 

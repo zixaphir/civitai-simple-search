@@ -6,14 +6,14 @@
   "bin": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "pkg": {
     "assets": [
       "views/**/*",
-      "assets/**/*",
-    ]
-    "output": "dist",
+      "assets/**/*"
+    ],
+    "output": "dist"
   },
   "author": "zixaphir",
   "license": "GPL-3.0",
