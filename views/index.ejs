@@ -1,3 +1,11 @@
+<%
+function pagination_url(cursor) {
+    url = meta.url;
+    url.replace(/cursor=[^&]+&?/i, '');
+    return `${url}&cursor=${cursor}`
+}
+%>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -97,7 +105,7 @@
                 padding: 10px;
                 width: 320px;
                 height: 480px;
-                overflow: scroll;
+                overflow: hidden;
             }
             div:hover > .description {
                 height: 480px;
@@ -171,7 +179,7 @@
                 text-align: center;
             }
             body.desktop {
-                padding-top: 3.3em;
+                padding-top: 3.6em;
             }
             a {
                 color: #ddd;
@@ -245,6 +253,7 @@
             }
 
             function setCivitInputs() {
+                // TODO: do this on nodejs side.
                 const params = new URLSearchParams(window.location.search);
                 const entries = params.entries()
 
@@ -260,35 +269,6 @@
                     }
                 }
 
-            }
-
-            function setPagination() {
-                let url = new URL(window.location.toString());
-                let params = new URLSearchParams(url.search);
-
-                let page = params.get("page");
-
-                const prev = document.getElementById("civit_prev_page");
-                const next = document.getElementById("civit_next_page");
-
-                if (page === undefined || page === null) {
-                    page = 1;
-                } else {
-                    page = parseInt(page);
-                }
-
-                params.set("page", page + 1);
-                url.search = params.toString();
-                next.href = url.toString();
-
-                if (page <= 1) {
-                    prev.disabled = true;
-                    return;
-                }
-
-                params.set("page", page - 1);
-                url.search = params.toString();
-                prev.href = url.toString();
             }
 
             function populateInputs(baseName) {
@@ -321,7 +301,6 @@
                 const submit = document.getElementById("search_submit");
 
                 setCivitInputs();
-                setPagination();
                 isMobile();
 
                 submit.addEventListener("click", civitPerformSearch);
@@ -334,7 +313,9 @@
         <div class="search_container">
             <form method="get" id="civitai_search" action="search">
                 <div>
-                    <a id="civit_prev_page">&lt;</a>
+                    <% if (meta?.prevCursor) { %>
+                        <a id="civit_prev_page" href="<%= pagination_url(meta.prevCursor) %>">&lt;</a>
+                    <% } %>
                     <label>
                         Search
                         <input name="query" type="text" placeholder="Query" id="civit_query">
@@ -369,7 +350,10 @@
                         </select>
                     </label>
                     <input type="submit" value="Search" id="search_submit">
-                    <a id="civit_next_page">&gt;</a>
+
+                    <% if (meta?.nextCursor) { %>
+                        <a id="civit_next_page" href="<%= pagination_url(meta.nextCursor) %>">&gt;</a>
+                    <% } %>
                 </div>
                 <div id="civit_types">
                     Model Type:

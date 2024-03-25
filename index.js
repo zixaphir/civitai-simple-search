@@ -44,7 +44,7 @@ function make_url(args) {
 
 async function fetchData(url, nsfw) {
     let jsondata = "";
-    let models = new Promise((resolve) => {
+    let fetch_models = new Promise((resolve) => {
         https.get(url, res => {
             let data = "";
 
@@ -64,16 +64,28 @@ async function fetchData(url, nsfw) {
             });
 
             res.on('end', () => {
-                const models = []
+                const models = [];
                 console.log('Response ended: ');
-                const items = JSON.parse(data).items || [];
+                const json = JSON.parse(data);
+                const items = json.items || [];
+                const search_results = {
+                    models: [],
+                    meta: {
+                        status: null,
+                        prevCursor: null,
+                        nextCursor: null,
+                    },
+                };
 
                 if (items.length == 0) {
+                    search_reseults.status = "fail";
                     console.log("No models found for query. :(");
-                    resolve([]);
+                    resolve(search_results);
                 }
 
-                const names = [];
+                search_results.meta.prevCursor = json.metadata?.prevCursor;
+                search_results.meta.nextCursor = json.metadata?.nextCursor;
+
                 for(let model of items) {
                     /*
                     if (filter) {
@@ -108,7 +120,6 @@ async function fetchData(url, nsfw) {
                     try {
                         const previews = [];
                         for (const version of modelVersions) {
-                            console.log(version);
                             const images = version?.images;
                             if (images?.length > 0) {
                                 previews.push(...images);
@@ -152,8 +163,7 @@ async function fetchData(url, nsfw) {
                         download = "";
                     }
 
-                    names.push(name);
-                    models.push({
+                    search_results.models.push({
                         name: name,
                         preview: {
                             type: preview.type,
@@ -166,8 +176,9 @@ async function fetchData(url, nsfw) {
                         baseModels: baseModels,
                     });
                 }
-                console.log(`Found the following models: ["${names.join("\", \"")}"].`);
-                resolve(models);
+
+                search_results.status = "success";
+                resolve(search_results);
 
             }).on('error', res => {
                 console.log('Error: ', res.message);
@@ -175,7 +186,7 @@ async function fetchData(url, nsfw) {
             });
         });
     });
-    return models;
+    return fetch_models;
 }
 
 function parseURL(req) {
@@ -224,13 +235,16 @@ app.get('/', function (req, res) {
 
     let page = make_url(args)
 
-    fetchData(page, false).then(models => {
+    fetchData(page, false).then(search_results => {
+        let models = search_results.models;
+
         res.render("index", {
             cards: models,
             types: args.types,
             nsfw: "false",
             baseModels: args.baseModels,
             autoplay: allow_video && video_autoplay,
+            meta: null, // disables pagination
         });
     });
 });
@@ -251,13 +265,19 @@ app.get('/search', function (req, res) {
 
     let page = make_url(args);
 
-    fetchData(page, (args.nsfw == "true" ? true : false)).then(models => {
+    fetchData(page, (args.nsfw == "true" ? true : false)).then(search_results => {
+        let models = search_results.models;
+        let meta = search_results.meta;
+
+        meta.url = req.url;
+
         res.render("index", {
             cards: models,
             types: types,
             nsfw: args.nsfw,
             baseModels: baseModels,
             autoplay: allow_video && video_autoplay,
+            meta: meta,
         });
     });
 });
