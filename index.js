@@ -9,7 +9,7 @@ const allow_video = true;
 const video_autoplay = true;
 
 app.use(express.urlencoded({extended: true}))
-app.use(express.static('imgs'));
+app.use(express.static('assets'));
 
 const base_url = "https://civitai.com/api/v1/models?";
 const model_base_url = "https://civitai.com/models/"

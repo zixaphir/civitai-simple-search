@@ -1,10 +1,19 @@
 {
-  "name": "civitai_top_models_by_day",
+  "name": "civitai_simple_search",
   "version": "1.0.0",
   "description": "List the top 10 models on Civitai by the date they were posted",
   "main": "index.js",
+  "bin": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+  },
+  "pkg": {
+    "assets": [
+      "views/**/*",
+      "assets/**/*",
+    ]
+    "output": "dist",
   },
   "author": "zixaphir",
   "license": "GPL-3.0",
