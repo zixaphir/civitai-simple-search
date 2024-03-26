@@ -80,7 +80,7 @@ async function fetchData(url, nsfw) {
                 };
 
                 if (items.length == 0) {
-                    search_reseults.status = "fail";
+                    search_results.status = "fail";
                     console.log("No models found for query. :(");
                     resolve(search_results);
                 }
