@@ -49,12 +49,27 @@ async function fetchData(url, nsfw) {
     let fetch_models = new Promise((resolve) => {
         https.get(url, res => {
             let data = "";
+            const search_results = {
+                models: [],
+                meta: {
+                    status: null,
+                    statusMsg: null,
+                    prevCursor: null,
+                    nextCursor: null,
+                },
+            };
 
             console.log(url);
 
             const headerDate = res.headers && res.headers.date ? res.headers.date : 'no response date';
             console.log('Status Code:', res.statusCode);
             console.log('Date in Response header:', headerDate);
+
+            if ((res.statusCode < 200) || (res.statusCode > 299)) {
+                search_results.meta.status = "fail";
+                search_results.meta.statusMsg = `There was an issue communicating with Civitai's API: ${res.statusCode}`;
+                return resolve(search_results);
+            }
 
             const preview_types = ["image"];
             if (allow_video) {
@@ -70,19 +85,13 @@ async function fetchData(url, nsfw) {
                 console.log('Response ended: ');
                 const json = JSON.parse(data);
                 const items = json.items || [];
-                const search_results = {
-                    models: [],
-                    meta: {
-                        status: null,
-                        prevCursor: null,
-                        nextCursor: null,
-                    },
-                };
 
                 if (items.length == 0) {
-                    search_results.status = "fail";
-                    console.log("No models found for query. :(");
-                    resolve(search_results);
+                    let msg = "No models found for query. :(";
+                    console.log(msg);
+                    search_results.meta.status = "fail";
+                    search_results.meta.statusMsg = msg;
+                    return resolve(search_results);
                 }
 
                 search_results.meta.prevCursor = json.metadata?.prevCursor;
@@ -141,6 +150,7 @@ async function fetchData(url, nsfw) {
 
                             preview.url = file.url;
                             preview.type = file.type;
+                            break;
                         }
                     } catch(err) {
                         console.log(`Could not find model preview for ${name}.`);
@@ -179,7 +189,7 @@ async function fetchData(url, nsfw) {
                     });
                 }
 
-                search_results.status = "success";
+                search_results.meta.status = "success";
                 resolve(search_results);
 
             }).on('error', res => {

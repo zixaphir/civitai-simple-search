@@ -119,7 +119,7 @@ function pagination_url(cursor) {
             </form>
         </div>
         <div class="body_container">
-            <% if (cards.length > 0) { %>
+            <% if (meta.status == "success") { %>
                 <div class="cards_container">
                     <% cards.forEach(function(card) { %>
                         <div class="model_card">
@@ -160,7 +160,7 @@ function pagination_url(cursor) {
                     <% }); %>
                 </div>
             <% } else { %>
-                <div><center>No models found for query :( </center></div>
+                <div><center><%= meta.statusMsg %></center></div>
             <% } %>
         </div>
     </body>
