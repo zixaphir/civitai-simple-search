@@ -132,7 +132,7 @@ async function fetchData(url, nsfw) {
                             }
                         }
                         for (const file of previews) {
-                            if (!nsfw && file.nsfw == "X") {
+                            if (!nsfw && file.nsfwLevel > 2 /* PG13 Rating */) {
                                 continue;
                             }
                             if (!preview_types.includes(file.type)) {
